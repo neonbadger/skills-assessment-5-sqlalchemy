@@ -63,31 +63,57 @@ def get_model_info(year):
     '''Takes in a year, and prints out each model, brand_name, and brand
     headquarters for that year using only ONE database query.'''
 
-    cars_from_year = db.session.query(Model.name, 
-                                      Model.brand_name, 
-                                      Brand.headquarters).join(
-                                      Brand, Model.brand_name == Brand.name).filter(
-                                      Model.year == year).all()
-    
-    for name, brand_name, headquarters in cars_from_year:
-        print "Model %s from brand %s in %s came out in %d." % (
-                    name, brand_name, headquarters, year)
 
+    all_cars_from_year = Model.query.filter(Model.year == year).all()
+
+    for car in all_cars_from_year:
+      print "Model %s from brand %s in %s came out in %d." % (car.name,
+                                                              car.brand_name,
+                                                              car.brands.headquarters,
+                                                              year)
+      print '\n'
+    
+    ### Solution before using db.ForeignKey & db.relationship
+    ### join on Model.brand_name == Brand.name
+    ### cars_from_year are NOT a list of objects, but a list
+    ### of tuple with column info selected ( [(u'Model T'), (u'Ford') ...])
+    ### print out without the objects
+
+    # cars_from_year = db.session.query(Model.name, 
+    #                                   Model.brand_name, 
+    #                                   Brand.headquarters).join(
+    #                                   Brand, Model.brand_name == Brand.name).filter(
+    #                                   Model.year == year).all()
+    
+    # for name, brand_name, headquarters in cars_from_year:
+    #     print "Model %s from brand %s in %s came out in %d." % (
+    #                 name, brand_name, headquarters, year)
 
 def get_brands_summary():
     '''Prints out each brand name, and each model name for that brand
      using only ONE database query.'''
 
-    # add Model.year for clarity
-    brand_model = db.session.query(Brand.name, 
-                                   Model.name,
-                                   Model.year).join(Model,
-                                                    Brand.name == Model.brand_name).order_by(
-                                                    Brand.name, Model.year).all()
+    all_brands = Brand.query.all()
+
+    for brand in all_brands:
+      for model in brand.models:
+        print "Brand %s has model %s %s." % (brand.name,
+                                             model.year,
+                                             model.name)
+      print '\n'
+
+
+    ### Solution before using db.ForeignKey and db.relationship
+
+    # brand_model = db.session.query(Brand.name, 
+    #                                Model.name,
+    #                                Model.year).join(Model,
+    #                                                 Brand.name == Model.brand_name).order_by(
+    #                                                 Brand.name, Model.year).all()
     
-    # add year info as Brands issued same models for diff years
-    for brand, model, year in brand_model:
-        print "Brand %s has model %s %s." % (brand, year, model)
+    # # add year info as Brands issued same models for diff years
+    # for brand, model, year in brand_model:
+    #     print "Brand %s has model %s %s." % (brand, year, model)
 
 # -------------------------------------------------------------------
 

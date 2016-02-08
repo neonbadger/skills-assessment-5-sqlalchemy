@@ -24,10 +24,17 @@ class Model(db.Model):
                    autoincrement = True)
     year = db.Column(db.Integer,
                      nullable = False)
-    brand_name = db.Column(db.String(50))
+    brand_name = db.Column(db.String(50),
+                           db.ForeignKey('brands.name'))
     name = db.Column(db.String(50),
                      nullable = False)
 
+    
+    # the ForeignKey constraint does not have to link 
+    # only to a PRIMARY KEY constraint; FK can also
+    # reference columns of a unique constraint in another table
+    brands = db.relationship('Brand',
+                              backref = 'models')
 
 class Brand(db.Model):
 
